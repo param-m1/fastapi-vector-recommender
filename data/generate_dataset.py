@@ -4,7 +4,7 @@ Run from the project root:
     python data/generate_dataset.py
 """
 
-from __future__ import annotations 
+from __future__ import annotations  
 
 import csv
 import itertools
@@ -138,7 +138,7 @@ def build_category_rows(rng: random.Random, category: str, spec: dict) -> list[d
             "category": category,
             "price": f"{price:.2f}",
         })
-r
+    return rows
 
 def validate(rows: list[dict]) -> None:
     """Fail loudly if the dataset breaks its contract (raise, not assert: asserts vanish under python -O)."""
