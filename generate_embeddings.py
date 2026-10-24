@@ -22,16 +22,30 @@ def build_text(title: str, description: str) -> str:
 
 
 def load_products(path: Path) -> tuple[np.ndarray, list[str]]:
-    df = pd.read_csv(path) 
+    df = pd.read_csv(path)
     ids = df["product_id"].to_numpy()
-    texts = [f"{row['title']}. {row['description']}" for _, row in df.iterrows()]
+    texts = [build_text(title, description) for title, description in zip(df["title"], df["description"])]
     return ids, texts
 
 def main() -> None:
     ids, texts = load_products(DATA_PATH)
-    print(len(ids))
-    print(ids[:3])
-    print(texts[0])
+    # print(len(ids))
+    # print(ids[:3])
+    # print(texts[0])
+
+    model = SentenceTransformer(MODEL_NAME, device = "cpu")
+    start_time = time.perf_counter()
+    embeddings = embed(model, texts)
+    end_time = time.perf_counter()
+    print(f"Embedding time: {end_time - start_time:.2f} seconds")
+    print(embeddings.shape, embeddings.dtype)
+
+def embed(model, texts) -> np.ndarray:
+    return model.encode_document(texts, batch_size = BATCH_SIZE, normalize_embeddings = True, show_progress_bar = True).astype(np.float32, copy = False)
 
 if __name__ == "__main__":
     main()
+
+
+
+
