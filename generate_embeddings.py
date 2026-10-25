@@ -27,6 +27,14 @@ def load_products(path: Path) -> tuple[np.ndarray, list[str]]:
     texts = [build_text(title, description) for title, description in zip(df["title"], df["description"])]
     return ids, texts
 
+def embed(model, texts) -> np.ndarray:
+    return model.encode_document(texts, batch_size = BATCH_SIZE, normalize_embeddings = True, show_progress_bar = True).astype(np.float32, copy = False)
+
+def save(ids, embeddings) -> None:
+    ARTIFACTS_DIR.mkdir(parents = True, exist_ok = True)
+    np.save(IDS_PATH, ids)
+    np.save(EMBEDDINGS_PATH, embeddings)
+
 def main() -> None:
     ids, texts = load_products(DATA_PATH)
     # print(len(ids))
@@ -39,9 +47,6 @@ def main() -> None:
     end_time = time.perf_counter()
     print(f"Embedding time: {end_time - start_time:.2f} seconds")
     print(embeddings.shape, embeddings.dtype)
-
-def embed(model, texts) -> np.ndarray:
-    return model.encode_document(texts, batch_size = BATCH_SIZE, normalize_embeddings = True, show_progress_bar = True).astype(np.float32, copy = False)
 
 if __name__ == "__main__":
     main()
