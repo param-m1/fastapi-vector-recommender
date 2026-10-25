@@ -47,7 +47,9 @@ def main() -> None:
     end_time = time.perf_counter()
     print(f"Embedding time: {end_time - start_time:.2f} seconds")
     print(embeddings.shape, embeddings.dtype)
+    save(ids, embeddings)
 
+    
 if __name__ == "__main__":
     main()
 
