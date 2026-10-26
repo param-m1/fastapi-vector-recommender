@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sentence_transformers import SentenceTransformer
 
@@ -65,3 +66,5 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 @app.get("/", include_in_schema=False)
 def index():
     return FileResponse(STATIC_DIR / "index.html")
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
