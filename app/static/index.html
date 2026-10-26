@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Product Search</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; }
+  form { display: flex; gap: 8px; }
+  input { flex: 1; min-width: 0; font: inherit; padding: 8px 10px; }
+  button { font: inherit; padding: 8px 16px; }
+  #status { margin: 16px 0 8px; min-height: 1.5em; font-size: 0.9rem; opacity: 0.7; }
+  #status.error { color: crimson; opacity: 1; }
+  ol { margin: 0; padding-left: 1.5em; }
+  li { padding: 8px 0; }
+  .meta { font-size: 0.9rem; opacity: 0.7; }
+</style>
+</head>
+<body>
+  <h1>Product Search</h1>
+  <form id="form">
+    <input id="query" type="search" maxlength="200" placeholder="Describe what you're looking for" aria-label="Search" autofocus>
+    <button id="go">Search</button>
+  </form>
+  <p id="status" aria-live="polite"></p>
+  <ol id="results"></ol>
+
+<script>
+  const form = document.getElementById("form");
+  const input = document.getElementById("query");
+  const go = document.getElementById("go");
+  const status = document.getElementById("status");
+  const results = document.getElementById("results");
+
+  function show(message, isError) {
+    status.textContent = message;
+    status.className = isError ? "error" : "";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const query = input.value.trim();
+    if (!query) return;
+
+    go.disabled = true;
+    results.replaceChildren();
+    show("Searching…");
+
+    try {
+      const res = await fetch("/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+      if (!res.ok) {
+        let reason = "The API returned an error (" + res.status + ").";
+        if (res.status === 422) {
+          const body = await res.json().catch(() => null);
+          if (body && body.detail && body.detail[0]) reason = body.detail[0].msg + ".";
+        }
+        return show(reason, true);
+      }
+
+      const data = await res.json();
+      show(data.results.length + " results in " + data.latency_ms.toFixed(1) + " ms");
+
+      for (const r of data.results) {
+        const li = document.createElement("li");
+        const title = document.createElement("div");
+        const meta = document.createElement("div");
+        title.textContent = r.title;
+        meta.className = "meta";
+        meta.textContent = r.category + " · $" + r.price.toFixed(2) + " · score " + r.score.toFixed(2);
+        li.append(title, meta);
+        results.append(li);
+      }
+    } catch (err) {
+      show("Can't reach the API. Is the server running?", true);
+    } finally {
+      go.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
