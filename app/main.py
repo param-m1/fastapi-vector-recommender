@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from sentence_transformers import SentenceTransformer
 
 from app.schemas import RecommendRequest, RecommendResponse, Recommendation
@@ -33,7 +34,7 @@ app = FastAPI(lifespan = lifespan)
 def health(request: Request):
     return{"products": len(request.app.state.products), "status": "ok"}
 
-@app.post(r"/recommend", response_model = RecommendResponse)
+@app.post("/recommend", response_model = RecommendResponse)
 def recommend(body: RecommendRequest, request: Request):
     start_time = time.perf_counter()
     state = request.app.state
@@ -58,3 +59,9 @@ def recommend(body: RecommendRequest, request: Request):
 
     latency_ms = (time.perf_counter() - start_time) * 1000
     return RecommendResponse(query = body.query, results = results, latency_ms = latency_ms)
+
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+@app.get("/", include_in_schema=False)
+def index():
+    return FileResponse(STATIC_DIR / "index.html")
