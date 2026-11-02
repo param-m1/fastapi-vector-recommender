@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Product Search</title>
+<meta name="description" content="Search a product catalog by meaning. Runs entirely in your browser.">
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px 48px; }
+  form { display: flex; gap: 8px; }
+  input { flex: 1; min-width: 0; font: inherit; padding: 8px 10px; }
+  button { font: inherit; padding: 8px 16px; }
+  .try { margin: 12px 0 0; font-size: 0.9rem; opacity: 0.8; }
+  .try button, .similar {
+    padding: 0; border: 0; background: none; color: inherit;
+    text-decoration: underline; cursor: pointer; font-size: inherit;
+  }
+  .try button { margin-right: 12px; }
+  #status { margin: 20px 0 8px; min-height: 1.5em; font-size: 0.9rem; opacity: 0.7; }
+  #status.error { color: crimson; opacity: 1; }
+  ol { margin: 0; padding-left: 1.5em; }
+  li { padding: 8px 0; }
+  .meta { font-size: 0.9rem; opacity: 0.7; }
+  .similar { font-size: 0.9rem; opacity: 0.85; }
+  .foot { margin-top: 32px; font-size: 0.85rem; opacity: 0.7; }
+  .foot a { color: inherit; }
+</style>
+</head>
+<body>
+  <h1>Product Search</h1>
+
+  <form id="form">
+    <input id="query" type="search" maxlength="200" placeholder="Describe what you're looking for" aria-label="Search" autofocus>
+    <button id="go">Search</button>
+  </form>
+
+  <p class="try">Try:
+    <button type="button">a tent that survives heavy rain</button>
+    <button type="button">quiet keyboard for working late</button>
+    <button type="button">make espresso at home</button>
+  </p>
+
+  <p id="status" aria-live="polite"></p>
+  <ol id="results"></ol>
+
+  <p class="foot">
+    This demo runs entirely in your browser. It ranks 1,000 made-up products using precomputed
+    vectors and a browser build of the all-MiniLM-L6-v2 model. The first search downloads the model.
+    The FastAPI version of this project is on
+    <a href="https://github.com/param-m1/fastapi-vector-recommender">GitHub</a>.
+  </p>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
